@@ -17,9 +17,23 @@ browser.get(url)
 html = browser.page_source
 #print(html)
 soup = BeautifulSoup(html)
-print (pd.read_html(url))
+firstFrame = pd.read_html(url)
+frame = firstFrame[0].fillna('')
+finalframe = frame.drop(columns = ['Attendance', 'Referee', 'Match Report', 'Notes'])
+print (finalframe)
 
+
+
+
+#Code For Extracting Match Reports from table
+matchLinks = []
 for link in soup.find_all('a'):
     newLink = link.get('href')
-    if newLink[0:10] == "/en/matches":
-        print ("true")
+    try:
+        if newLink[0:11] == "/en/matches":
+            matchLinks.append(newLink)
+    except TypeError:
+            print ("value error")
+    except:
+        pass
+
