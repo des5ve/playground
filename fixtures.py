@@ -1,5 +1,4 @@
 import requests
-import json
 from requests.auth import HTTPBasicAuth
 import numpy as np
 import pandas as pd
@@ -26,6 +25,7 @@ def getLeagueFixtures(url, table):
   firstFrame = pd.read_html(url)
   frame = firstFrame[0].fillna('')
   finalFrame = frame.drop(columns = ['Attendance', 'Referee', 'Match Report', 'Notes']).rename(columns = {"xG.1": "xGAway", "xG": 'xGHome'})
+  print (finalFrame)
   gameData = []
   numberOfColumns = finalFrame.shape[1]
   columnNames =  finalFrame.columns.tolist()
@@ -38,8 +38,8 @@ def getLeagueFixtures(url, table):
     gameData.append(dataRow)
   mydb = pymysql.connect(
     host="nfldb2.cke1iobwnywt.us-east-1.rds.amazonaws.com",
-    user="",
-    password="",
+    user="des5ve",
+    password="Cm14fcfire",
     database= "BetTrack")
   mycursor = mydb.cursor()
   truncateSQL = "TRUNCATE TABLE " +table
@@ -49,7 +49,7 @@ def getLeagueFixtures(url, table):
   mydb.commit()
   print (mycursor.rowcount, "record inserted")
 
-getLeagueFixtures(bundesliga, "bundesliga_fixtures")
+getLeagueFixtures(serieA, "serieA_fixtures")
 
 
 #Code For Extracting Match Reports from table

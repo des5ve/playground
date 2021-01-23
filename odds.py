@@ -6,6 +6,7 @@ from datetime import date
 import time
 from pandas import DataFrame
 import os
+import pymysql
 
 
 # def connectTor():
@@ -356,9 +357,42 @@ def main():
     # df_1h_rl, how='left', on = ['key','team','pitcher','hand','opp_team'])
     # write_df = write_df.merge(
     # df_1h_tot, how='left', on = ['key','team','pitcher','hand','opp_team'])
-
-    with open(os.getcwd() + '\SBR_NBA_Lines.csv', 'a') as f:
-        write_df.to_csv(f, index=False)  # , header = False)
+    print (write_df)
+    columns = write_df.columns
+    gameData = []
+    numberOfColumns = write_df.shape[1]
+    columnNames =  write_df.columns.tolist()
+    placeHolder = []
+    for i in columns:
+        placeHolder.append('%s')
+    tupleHolder = tuple(placeHolder)
+    print (tupleHolder)
+    print ("Column Names: ", columnNames)
+    for i, row in write_df.iterrows():
+        dataRow = []
+        iterator = 0
+        while iterator < numberOfColumns:
+            dataRow.append(row[columnNames[iterator]])
+            iterator +=1
+        gameData.append(dataRow)
+    print ("Data from Frame in Arrays:", gameData)
+    queryHolder = []
+    for string in columnNames:
+        queryHolder.append("ALTER TABLE BetTrack.nba_odds ADD " +string + " varchar(100) NULL;")
+    print (queryHolder)
+    mydb = pymysql.connect(
+        host="nfldb2.cke1iobwnywt.us-east-1.rds.amazonaws.com",
+        user="des5ve",
+        password="Cm14fcfire",
+        database= "BetTrack")
+    mycursor = mydb.cursor()
+    table = "nba_odds"
+    sql = "INSERT INTO" +table+ "(key, date, ml_time, team, opp_team, ml_PIN, ml_FD, ml_HER, ml_BVD, ml_BOL, rl_time, rl_PIN_line, rl_PIN_odds, rl_FD_line, rl_FD_odds, rl_HER_line, rl_HER_odds, rl_BVD_line, rl_BVD_odds, rl_BOL_line, rl_BOL_odds, tot_time, tot_PIN_line, tot_PIN_odds, tot_FD_line, tot_FD_odds, tot_HER_line, tot_HER_odds, tot_BVD_line, tot_BVD_odds, tot_BOL_line, tot_BOL_odds) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    mycursor.executemany(sql, gameData)
+    mydb.commit()
+    print (mycursor.rowcount, "record inserted")
+    #with open(os.getcwd() + '\SBR_NBA_Lines.csv', 'a') as f:
+     #   write_df.to_csv(f, index=False)  # , header = False)
 
     ## Code to pull tomorrow's data --- work in progress
     # if time.ml[:2] >= 12:
@@ -387,3 +421,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
