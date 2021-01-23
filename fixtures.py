@@ -38,8 +38,8 @@ def getLeagueFixtures(url, table):
     gameData.append(dataRow)
   mydb = pymysql.connect(
     host="nfldb2.cke1iobwnywt.us-east-1.rds.amazonaws.com",
-    user="des5ve",
-    password="Cm14fcfire",
+    user="",
+    password="",
     database= "BetTrack")
   mycursor = mydb.cursor()
   truncateSQL = "TRUNCATE TABLE " +table
